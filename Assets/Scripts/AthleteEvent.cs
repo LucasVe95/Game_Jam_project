@@ -6,7 +6,7 @@ public class AthleteEvent : MonoBehaviour, IPointerClickHandler
 {
     [Header("Caractéristiques")]
     public int dossard;
-    public float speed = 2f;
+    public float speed = 5f;
     public InfractionType infractionReelle;
 
     [Header("Navigation")]

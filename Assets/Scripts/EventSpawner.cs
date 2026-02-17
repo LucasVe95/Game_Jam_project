@@ -17,6 +17,12 @@ public class EventSpawner : MonoBehaviour
 
     void Start()
     {
+        if (athletePrefab == null)
+        {
+            Debug.LogError("Attention : Le prefab 'Athlète' n'est pas assigné dans l'inspecteur du générateur !");
+            return;
+        }
+        
         StartCoroutine(GenererAthletes());
     }
 
@@ -25,23 +31,41 @@ public class EventSpawner : MonoBehaviour
         while (courseEnCours && athletesSpawnes < maxAthletes)
         {
             GameObject nouvelAthlete = Instantiate(athletePrefab, transform.position, Quaternion.identity);
-   
+            
             AthleteEvent infos = nouvelAthlete.GetComponent<AthleteEvent>();
             
-            infos.dossard = Random.Range(100, 999);
-            infos.speed = Random.Range(1.5f, 3.5f);
-            infos.waypoints = cheminDeCourse;
+            if (infos != null)
+            {
+                infos.dossard = Random.Range(100, 999);
+                infos.speed = Random.Range(5f, 10f);
+                infos.waypoints = cheminDeCourse;
 
-            infos.infractionReelle = (Random.value > 0.8f) ? 
-                InfractionType.parcour_coupée : InfractionType.None;
+                float probaTriche = Random.value;
+                if (probaTriche > 0.7f) 
+                {
+                    infos.infractionReelle = (InfractionType)Random.Range(1, 4);
+                }
+                else 
+                {
+                    infos.infractionReelle = InfractionType.None;
+                }
 
-            athletesSpawnes++;
-            
+                if (GameManager.Instance != null)
+                {
+                    GameManager.Instance.EnregistrerNouvelAthlete(infos.dossard, infos.infractionReelle);
+                }
+                else
+                {
+                    Debug.LogWarning("GameManager.Instance est introuvable ! L'athlète ne sera pas jugé au débrief.");
+                }
+
+                athletesSpawnes++;
+            }
 
             yield return new WaitForSeconds(tempsEntreApparitions);
         }
 
         courseEnCours = false;
-        Debug.Log("Tous les athlètes sont partis. Fin du spawn.");
+        Debug.Log("Fin de la génération : tous les athlètes sont en course.");
     }
 }
