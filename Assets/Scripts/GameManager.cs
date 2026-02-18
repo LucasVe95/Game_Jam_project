@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-
+using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
@@ -14,20 +14,25 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null) Instance = this;
-    }
-
-   void Update()
-{
-    if (!natationFinie && spawner != null && !spawner.courseEnCours && tousLesAthletes.Count > 0)
-    {
-        if (GameObject.FindObjectsOfType<AthleteEvent>().Length == 0)
-        {
-            natationFinie = true;
-            TerminerEtapeNatation();
+        if (Instance == null) {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        } else {
+            Destroy(gameObject);
         }
     }
-}
+
+    void Update()
+    {
+        if (!natationFinie && spawner != null && !spawner.courseEnCours && tousLesAthletes.Count > 0)
+        {
+            if (GameObject.FindObjectsOfType<AthleteEvent>().Length == 0)
+            {
+                natationFinie = true;
+                TerminerEtapeNatation();
+            }
+        }
+    }
 
     public void EnregistrerNouvelAthlete(int bib, InfractionType reel)
     {
@@ -51,13 +56,16 @@ public class GameManager : MonoBehaviour
 
     private void TerminerEtapeNatation()
     {
-        Debug.Log("<color=green>Étape Natation terminée ! Fermeture du menu d'arbitrage.</color>");
+        Debug.Log("<color=green>Étape Natation terminée ! Passage à la T1.</color>");
         
+        // On ferme le menu si besoin
         if (UIManager.Instance != null)
         {
             UIManager.Instance.FermerMenuDefinitif();
         }
 
+        
+        SceneManager.LoadScene("T1"); 
     }
 }
 
