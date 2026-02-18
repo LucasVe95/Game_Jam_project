@@ -17,17 +17,17 @@ public class GameManager : MonoBehaviour
         if (Instance == null) Instance = this;
     }
 
-    void Update()
+   void Update()
+{
+    if (!natationFinie && spawner != null && !spawner.courseEnCours && tousLesAthletes.Count > 0)
     {
-        if (!natationFinie && spawner != null && !spawner.courseEnCours)
+        if (GameObject.FindObjectsOfType<AthleteEvent>().Length == 0)
         {
-            if (GameObject.FindObjectsOfType<AthleteEvent>().Length == 0)
-            {
-                natationFinie = true;
-                TerminerEtapeNatation();
-            }
+            natationFinie = true;
+            TerminerEtapeNatation();
         }
     }
+}
 
     public void EnregistrerNouvelAthlete(int bib, InfractionType reel)
     {

@@ -5,11 +5,10 @@ using UnityEngine;
 public class EventSpawner : MonoBehaviour
 {
     public GameObject athletePrefab;
-    public float tempsEntreApparitions = 3f;
     
-    [Header("Limites de la course")]
+    [Header("Paramètres du Groupe")]
     public int maxAthletes = 10; 
-    private int athletesSpawnes = 0; 
+    public float rayonDeGroupement = 3f; 
     public bool courseEnCours = true;
 
     [Header("Configuration du Parcours")]
@@ -19,53 +18,59 @@ public class EventSpawner : MonoBehaviour
     {
         if (athletePrefab == null)
         {
-            Debug.LogError("Attention : Le prefab 'Athlète' n'est pas assigné dans l'inspecteur du générateur !");
+            Debug.LogError("Attention : Le prefab 'Athlète' n'est pas assigné !");
             return;
         }
         
-        StartCoroutine(GenererAthletes());
+        LancerDepartGroupe();
     }
 
-    IEnumerator GenererAthletes()
+    void LancerDepartGroupe()
     {
-        while (courseEnCours && athletesSpawnes < maxAthletes)
+        for (int i = 0; i < maxAthletes; i++)
         {
-            GameObject nouvelAthlete = Instantiate(athletePrefab, transform.position, Quaternion.identity);
+            Vector3 positionDepart = transform.position + new Vector3(
+                Random.Range(-rayonDeGroupement, rayonDeGroupement), 
+                Random.Range(-rayonDeGroupement, rayonDeGroupement), 
+                0
+            );
+
+            GameObject nouvelAthlete = Instantiate(athletePrefab, positionDepart, Quaternion.identity);
             
             AthleteEvent infos = nouvelAthlete.GetComponent<AthleteEvent>();
             
             if (infos != null)
             {
                 infos.dossard = Random.Range(100, 999);
-                infos.speed = Random.Range(5f, 10f);
+                
+                infos.speed = Random.Range(4f, 8f); 
                 infos.waypoints = cheminDeCourse;
 
                 float probaTriche = Random.value;
                 if (probaTriche > 0.7f) 
                 {
                     infos.infractionReelle = (InfractionType)Random.Range(1, 4);
+
+                    if (infos.infractionReelle == InfractionType.gener_concurents)
+                    {
+                        AthleteEvent[] tousLesAthletes = GameObject.FindObjectsOfType<AthleteEvent>();
+                        if (tousLesAthletes.Length > 1)
+                        {
+                            AthleteEvent victime = tousLesAthletes[Random.Range(0, tousLesAthletes.Length)];
+                            if (victime != infos) victime.ActiverAlerteVictime(); 
+                        }
+                    }
                 }
-                else 
-                {
-                    infos.infractionReelle = InfractionType.None;
-                }
+                else { infos.infractionReelle = InfractionType.None; }
 
                 if (GameManager.Instance != null)
                 {
                     GameManager.Instance.EnregistrerNouvelAthlete(infos.dossard, infos.infractionReelle);
                 }
-                else
-                {
-                    Debug.LogWarning("GameManager.Instance est introuvable ! L'athlète ne sera pas jugé au débrief.");
-                }
-
-                athletesSpawnes++;
             }
-
-            yield return new WaitForSeconds(tempsEntreApparitions);
         }
 
-        courseEnCours = false;
-        Debug.Log("Fin de la génération : tous les athlètes sont en course.");
+        courseEnCours = false; 
+        Debug.Log("Départ groupé de " + maxAthletes + " athlètes !");
     }
 }

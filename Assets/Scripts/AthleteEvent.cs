@@ -6,6 +6,8 @@ public class AthleteEvent : MonoBehaviour, IPointerClickHandler
 {
     [Header("Caractéristiques")]
     public int dossard;
+    public GameObject pointVertVisuel;
+
     public float speed = 5f;
     public InfractionType infractionReelle;
 
@@ -13,6 +15,14 @@ public class AthleteEvent : MonoBehaviour, IPointerClickHandler
     public List<Transform> waypoints; 
     private int currentWaypointIndex = 0;
     public float distanceSeuil = 0.2f; 
+    public void ActiverAlerteVictime()
+    {
+        if (pointVertVisuel != null) 
+        {
+            pointVertVisuel.SetActive(true);
+        }
+    }
+
 void Start()
 {
 

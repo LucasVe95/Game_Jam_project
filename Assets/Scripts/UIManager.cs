@@ -20,7 +20,7 @@ public class UIManager : MonoBehaviour
         panelSaisie.SetActive(true); 
         inputDossard.ActivateInputField();
 
-        Time.timeScale = 0.2f; 
+
     }
 
     public void ValiderDossard()
@@ -38,7 +38,6 @@ public class UIManager : MonoBehaviour
         inputDossard.ActivateInputField(); 
     }
 
-    
     public void FermerMenuDefinitif()
     {
         panelSaisie.SetActive(false); 
