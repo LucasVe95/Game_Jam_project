@@ -8,17 +8,16 @@ public class T1Spawner : MonoBehaviour
     public float tempsEntreAthletes = 0.5f;
 
     [Header("Points de Passage")]
-    public Transform entreeParc; //
+    public Transform entreeParc; 
     public Transform sortieParc; 
 
     [Header("Réglages des Barres")]
-    public List<Transform> lesBarres; //
+    public List<Transform> lesBarres; 
     public float hauteurBarre = 6.5f; 
     public float decalageMilieuAllee = 1.3f; 
 
     void Start()
     {
-        // --- DIAGNOSTIC AU LANCEMENT ---
         if (GameManager.Instance == null) {
             Debug.LogError("ERREUR : GameManager introuvable !");
             return;
@@ -55,7 +54,6 @@ public class T1Spawner : MonoBehaviour
                 script.dossard = donnee.dossard;
                 script.speed = Random.Range(4.5f, 6.5f);
 
-                // TIRAGE FAUTES
                 float des = Random.value;
                 script.infractionReelle = InfractionType.None;
                 script.aSonCasque = true;
@@ -65,9 +63,13 @@ public class T1Spawner : MonoBehaviour
                 else if (des < 0.30f) { script.infractionReelle = InfractionType.PasDeCasque; script.aSonCasque = false; }
                 else if (des < 0.45f) { script.infractionReelle = InfractionType.DossardDevant; script.dossardArriere = false; }
 
+                if (script.infractionReelle != InfractionType.None)
+                {
+                    GameManager.Instance.totalInfractionsT1++;
+                }
+
                 script.InitialiserVisuels();
 
-                // NAVIGATION WAYPOINTS
                 Transform barre = lesBarres[Random.Range(0, lesBarres.Count)];
                 float cote = (Random.value > 0.5f) ? decalageMilieuAllee : -decalageMilieuAllee;
                 float posX = barre.position.x + cote;

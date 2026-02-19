@@ -12,10 +12,10 @@ public class AthleteEvent : MonoBehaviour, IPointerClickHandler
     public InfractionType infractionReelle = InfractionType.None;
 
     [Header("Visuels de Faute")]
-    public GameObject pointVertVisuel;    // Natation : Gêner concurrent
-    public GameObject visuelFauteCasque;   // T1 : Point Noir (Pas de casque)
-    public GameObject visuelFauteDossard;  // T1 : Point Rouge (Dossard devant, après arrêt)
-    public GameObject visuelFauteSousBarre; // T1 : NOUVEAU -> Point Bleu (Coupe la trajectoire)
+    public GameObject pointVertVisuel;    
+    public GameObject visuelFauteCasque;   
+    public GameObject visuelFauteDossard;  
+    public GameObject visuelFauteSousBarre; 
 
     public bool aSonCasque = true;
     public bool dossardArriere = true;
@@ -36,7 +36,6 @@ public class AthleteEvent : MonoBehaviour, IPointerClickHandler
 
     public void InitialiserVisuels()
     {
-        // 1. On éteint tout par sécurité au début
         if (pointVertVisuel != null) pointVertVisuel.SetActive(false);
         if (visuelFauteCasque != null) visuelFauteCasque.SetActive(false);
         if (visuelFauteDossard != null) visuelFauteDossard.SetActive(false);
@@ -46,21 +45,16 @@ public class AthleteEvent : MonoBehaviour, IPointerClickHandler
 
         if (scene == "T1")
         {
-            // --- GESTION DES FAUTES T1 ---
 
-            // A. PAS DE CASQUE -> Point Noir immédiat
             if (visuelFauteCasque != null && !aSonCasque) 
                 visuelFauteCasque.SetActive(true);
 
-            // B. SOUS LA BARRE -> Point Bleu immédiat (NOUVEAU)
             if (visuelFauteSousBarre != null && infractionReelle == InfractionType.SousBarre)
                 visuelFauteSousBarre.SetActive(true);
 
-            // C. DOSSARD DEVANT -> Point Rouge (s'activera plus tard après l'arrêt vélo)
         }
         else 
         {
-            // --- GESTION NATATION ---
             if (infractionReelle == InfractionType.gener_concurents) ActiverAlerteVictime();
             aPrisSonVelo = true; 
         }
@@ -72,7 +66,6 @@ public class AthleteEvent : MonoBehaviour, IPointerClickHandler
     {
         if (estEnPauseVelo) return; 
 
-        // ... (Code de navigation standard) ...
         if (waypoints == null || waypoints.Count == 0 || currentWaypointIndex >= waypoints.Count)
         {
             Vector3 dir = (SceneManager.GetActiveScene().name == "T1") ? Vector3.down : Vector3.right;
@@ -100,11 +93,11 @@ public class AthleteEvent : MonoBehaviour, IPointerClickHandler
         yield return new WaitForSeconds(Random.Range(2f, 5f));
         aPrisSonVelo = true; 
 
-        // Activation du Point Rouge si le dossard est mal mis
         if (visuelFauteDossard != null && !dossardArriere)
         {
             visuelFauteDossard.SetActive(true);
             Debug.Log($"<color=red>[INFRACTION] Dossard {dossard} repart avec le DOSSARD DEVANT !</color>");
+            GameManager.Instance.totalInfractionsT1++;
         }
 
         estEnPauseVelo = false; 

@@ -7,10 +7,15 @@ public class GameManager : MonoBehaviour
     
     [Header("Suivi de la Course")]
     public List<DonneesAthlete> tousLesAthletes = new List<DonneesAthlete>();
-
+    public int totalInfractionsNatation = 0;
+    public int totalInfractionsT1 = 0; 
+    public int totalInfractionsVelo = 0; 
     [Header("Contrôle de Fin d'Étape")]
     public EventSpawner spawner; 
     private bool natationFinie = false;
+    private bool t1Finie = false;
+    private bool veloFinie = false;
+    public static bool menuFinalAffiche = false; 
 
     void Awake()
     {
@@ -22,17 +27,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        if (!natationFinie && spawner != null && !spawner.courseEnCours && tousLesAthletes.Count > 0)
-        {
-            if (GameObject.FindObjectsOfType<AthleteEvent>().Length == 0)
-            {
-                natationFinie = true;
-                TerminerEtapeNatation();
-            }
-        }
-    }
+
 
     public void EnregistrerNouvelAthlete(int bib, InfractionType reel)
     {
@@ -54,11 +49,10 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void TerminerEtapeNatation()
+    public void TerminerEtapeNatation()
     {
         Debug.Log("<color=green>Étape Natation terminée ! Passage à la T1.</color>");
         
-        // On ferme le menu si besoin
         if (UIManager.Instance != null)
         {
             UIManager.Instance.FermerMenuDefinitif();
@@ -66,6 +60,38 @@ public class GameManager : MonoBehaviour
 
         
         SceneManager.LoadScene("T1"); 
+    }
+
+    public void TerminerEtapeT1()
+    {
+        Debug.Log("<color=green>Étape T1 terminée ! Passage au Vélo.</color>");
+        
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.FermerMenuDefinitif();
+        }
+
+        
+        SceneManager.LoadScene("velo"); 
+    }
+
+    public void TerminerEtapeVelo()
+    {
+        Debug.Log("<color=green>Étape Vélo terminée ! Passage à la T2.</color>");
+        
+        AthleteVelo[] athletes = Object.FindObjectsByType<AthleteVelo>(FindObjectsSortMode.None);
+        foreach (var athlete in athletes)
+        {
+            Destroy(athlete.gameObject);
+        }
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.FermerMenuDefinitif();
+        }
+
+        
+        SceneManager.LoadScene("T2"); 
     }
 }
 

@@ -21,6 +21,11 @@ public class EventSpawner : MonoBehaviour
             Debug.LogError("Attention : Le prefab 'Athlète' n'est pas assigné !");
             return;
         }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.totalInfractionsNatation = 0;
+        }
         
         LancerDepartGroupe();
     }
@@ -36,32 +41,32 @@ public class EventSpawner : MonoBehaviour
             );
 
             GameObject nouvelAthlete = Instantiate(athletePrefab, positionDepart, Quaternion.identity);
-            
             AthleteEvent infos = nouvelAthlete.GetComponent<AthleteEvent>();
             
             if (infos != null)
             {
                 infos.dossard = Random.Range(100, 999);
-                
                 infos.speed = Random.Range(4f, 8f); 
                 infos.waypoints = cheminDeCourse;
 
                 float probaTriche = Random.value;
+
                 if (probaTriche > 0.7f) 
                 {
-                    infos.infractionReelle = (InfractionType)Random.Range(1, 4);
+                    infos.infractionReelle = InfractionType.gener_concurents;
 
-                    if (infos.infractionReelle == InfractionType.gener_concurents)
+                    if (GameManager.Instance != null)
                     {
-                        AthleteEvent[] tousLesAthletes = GameObject.FindObjectsOfType<AthleteEvent>();
-                        if (tousLesAthletes.Length > 1)
-                        {
-                            AthleteEvent victime = tousLesAthletes[Random.Range(0, tousLesAthletes.Length)];
-                            if (victime != infos) victime.ActiverAlerteVictime(); 
-                        }
+                        GameManager.Instance.totalInfractionsNatation++;
+                        Debug.Log($"<color=cyan>[NATATION] Infraction créée ! Total à trouver : {GameManager.Instance.totalInfractionsNatation}</color>");
                     }
                 }
-                else { infos.infractionReelle = InfractionType.None; }
+                else 
+                { 
+                    infos.infractionReelle = InfractionType.None; 
+                }
+
+                infos.InitialiserVisuels();
 
                 if (GameManager.Instance != null)
                 {
@@ -71,6 +76,6 @@ public class EventSpawner : MonoBehaviour
         }
 
         courseEnCours = false; 
-        Debug.Log("Départ groupé de " + maxAthletes + " athlètes !");
+        Debug.Log("Départ de " + maxAthletes + " nageurs. Bon courage pour le comptage !");
     }
 }

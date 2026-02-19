@@ -1,43 +1,46 @@
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
 
 public class DebriefingUI : MonoBehaviour
 {
     public GameObject panelDebrief;
-    public Text texteResultats;
+    public TMP_Text texteResultats;
+    public UnityEngine.UI.Button boutonQuitter; 
     public int scoreFinal = 0;
+
+    void Start()
+    {
+        GenererDebrief();
+        if (boutonQuitter != null)
+        {
+            boutonQuitter.onClick.AddListener(QuitterJeu);
+        }
+    }
 
     public void GenererDebrief()
     {
         panelDebrief.SetActive(true);
-        scoreFinal = 0;
         string resume = "RÉSULTATS FINAUX :\n\n";
 
-        foreach (var athlete in GameManager.Instance.tousLesAthletes)
-        {
-            resume += $"Dossard {athlete.dossard} : ";
+        int totalInfractionsNatation = GameManager.Instance.totalInfractionsNatation;
+        int totalInfractionsT1 = GameManager.Instance.totalInfractionsT1;
+        int totalInfractions = totalInfractionsNatation + totalInfractionsT1;
 
-            if (athlete.infractionChoisieParJoueur == athlete.infractionReelle)
-            {
-                
-                if (athlete.infractionReelle != InfractionType.None)
-                {
-                    scoreFinal += 100;
-                    resume += "<color=green>CORRECT (+100)</color>";
-                }
-                else
-                {
-                    resume += "RAS"; 
-                }
-            }
-            else
-            {
-                scoreFinal -= 50;
-                resume += $"<color=red>ERREUR (-50)</color> (Reel: {athlete.infractionReelle})";
-            }
-            resume += "\n";
-        }
+        resume += $"Étape Natation : {totalInfractionsNatation} infractions détectées\n";
+        resume += $"Étape T1 : {totalInfractionsT1} infractions détectées\n";
+        resume += $"Total : {totalInfractions} infractions\n\n";
 
-        texteResultats.text = resume + $"\n\nSCORE TOTAL : {scoreFinal}";
+        int score = totalInfractions * 10; 
+        resume += $"Score : {score} points\n\n";
+
+        resume += "Cliquez sur le bouton pour quitter.";
+
+        texteResultats.text = resume;
+    }
+
+    public void QuitterJeu()
+    {
+        Debug.Log("Jeu terminé !");
+        Application.Quit(); 
     }
 }
